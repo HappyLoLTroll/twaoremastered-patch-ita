@@ -1,5 +1,7 @@
 # The Wolf Among Us Remastered — Patch ITA
 
+[![build](https://github.com/HappyLoLTroll/twaoremastered-patch-ita/actions/workflows/build.yml/badge.svg)](https://github.com/HappyLoLTroll/twaoremastered-patch-ita/actions/workflows/build.yml)
+
 Installer italiano per **The Wolf Among Us Remastered** (PC), con interfaccia
 grafica, backup automatico e ripristino.
 
@@ -17,7 +19,8 @@ Ultima versione nella pagina **Releases**:
 <https://github.com/HappyLoLTroll/twaoremastered-patch-ita/releases/latest>
 
 Un solo file: `IWAU-ITA-Installer.exe` (nessuna installazione, nessun Python
-richiesto).
+richiesto). L'eseguibile della release viene compilato automaticamente da
+GitHub Actions a ogni commit.
 
 ## Cosa fa
 
