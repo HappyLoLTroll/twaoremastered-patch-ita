@@ -4,7 +4,7 @@
 
 Installer italiano per la traduzione italiana di **The Wolf Among Us Remastered** (PC).
 
-> Il remaster contiene già i testi italiani ufficiali: questo progetto non
+> La remastered contiene già i testi italiani ufficiali: questo progetto non
 > traduce nulla, li rende semplicemente quelli usati dal gioco. Vedi
 > [Come sono stati ottenuti i testi italiani](#come-sono-stati-ottenuti-i-testi-italiani).
 
@@ -62,7 +62,7 @@ e cancella **solo** i file aggiunti dall'installer.
 
 ## Come sono stati ottenuti i testi italiani
 
-Nessuna traduzione amatoriale: il remaster **contiene già** la localizzazione
+Nessuna traduzione amatoriale: La remastered **contiene già** la localizzazione
 italiana ufficiale (testi con copyright aggiornati al 2026), semplicemente non
 viene usata se il gioco è impostato su inglese — e il selettore lingua
 originale non basta per le schede narrative, perché i file sono condivisi fra
@@ -124,13 +124,13 @@ stessa battuta ha lo stesso `crc64` in `_english.landb` e in `_italian.landb`.
 
 ### 3. Merge per chiave, non sostituzione del file
 
-Sostituire il file intero non funziona: i file italiani del remaster sono più
-vecchi e alcune voci (le schede narrative aggiunte nel remaster) mancano,
+Sostituire il file intero non funziona: i file italiani della remastered sono più
+vecchi e alcune voci (le schede narrative aggiunte nella remastered) mancano,
 quindi il motore mostra il valore di default cablato nella scena — `Hello`.
 
 La soluzione usata dall'installer:
 
-1. si parte dal file **inglese del remaster** (struttura e flag corretti);
+1. si parte dal file **inglese della remastered** (struttura e flag corretti);
 2. si sostituisce `actorSpeech` solo per le voci il cui `crc64Langres` esiste
    anche in italiano;
 3. le voci mancanti o con segnaposto (`Hello`) restano in inglese;
@@ -191,7 +191,7 @@ IWAU-ITA-Installer.exe --cli --undo --game "<gioco>"
 - Doppiaggio: l'edizione contiene solo l'audio inglese; cambiano testi, menu e
   sottotitoli.
 - I nomi dei personaggi seguono la patch vecchia nei capitoli (*Neve*,
-  *Pancopinco*, *Pincopanco*) e la traduzione del remaster nei dialoghi
+  *Pancopinco*, *Pincopanco*) e la traduzione della remastered nei dialoghi
   (*Bianca*, *Pinco*, *Panco*).
 - Il progetto non distribuisce materiale del gioco: l'installer legge i file
   dalla copia dell'utente.
