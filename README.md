@@ -2,10 +2,7 @@
 
 [![build](https://github.com/HappyLoLTroll/twaoremastered-patch-ita/actions/workflows/build.yml/badge.svg)](https://github.com/HappyLoLTroll/twaoremastered-patch-ita/actions/workflows/build.yml)
 
-Installer italiano per **The Wolf Among Us Remastered** (PC), con interfaccia
-grafica, backup automatico e ripristino.
-
-**installer by HappyLoLTroll**
+Installer italiano per la traduzione italiana di **The Wolf Among Us Remastered** (PC).
 
 > Il remaster contiene già i testi italiani ufficiali: questo progetto non
 > traduce nulla, li rende semplicemente quelli usati dal gioco. Vedi
@@ -181,18 +178,6 @@ python -m PyInstaller --onefile --windowed --name "IWAU-ITA-Installer" ^
   --specpath build installer_ita.py
 ```
 
-### GitHub Actions
-
-`.github/workflows/build.yml` compila `IWAU-ITA-Installer.exe` a **ogni push**
-(le modifiche alla sola documentazione — `*.md`, `docs/`, `.gitignore` — non
-fanno ripartire la build)
-(artifact scaricabile dalla pagina del run) e, se il push è un tag `v*`,
-pubblica automaticamente la release con l'eseguibile allegato.
-
-```
-git tag v1.1.0 && git push origin v1.1.0
-```
-
 ## CLI (debug)
 
 ```
@@ -208,9 +193,5 @@ IWAU-ITA-Installer.exe --cli --undo --game "<gioco>"
 - I nomi dei personaggi seguono la patch vecchia nei capitoli (*Neve*,
   *Pancopinco*, *Pincopanco*) e la traduzione del remaster nei dialoghi
   (*Bianca*, *Pinco*, *Panco*).
-- Nessuna modifica a `prefs.prop`, `steam_emu.ini` o altri file di
-  configurazione.
 - Il progetto non distribuisce materiale del gioco: l'installer legge i file
   dalla copia dell'utente.
-
-**installer by HappyLoLTroll**
