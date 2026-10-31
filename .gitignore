@@ -1,0 +1,10 @@
+# PyInstaller
+build/
+dist/
+*.spec
+__pycache__/
+*.pyc
+
+# output locale
+IWAU-ITA-Installer.exe
+*.log
