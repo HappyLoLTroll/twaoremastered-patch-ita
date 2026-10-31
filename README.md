@@ -184,6 +184,8 @@ python -m PyInstaller --onefile --windowed --name "IWAU-ITA-Installer" ^
 ### GitHub Actions
 
 `.github/workflows/build.yml` compila `IWAU-ITA-Installer.exe` a **ogni push**
+(le modifiche alla sola documentazione — `*.md`, `docs/`, `.gitignore` — non
+fanno ripartire la build)
 (artifact scaricabile dalla pagina del run) e, se il push è un tag `v*`,
 pubblica automaticamente la release con l'eseguibile allegato.
 
