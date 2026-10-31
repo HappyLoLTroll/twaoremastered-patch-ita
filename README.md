@@ -159,6 +159,32 @@ partiva). Per questo, in modalità capitoli, l'installer:
    dimensioni nell'indice e lasciando intatti nomi, `crc64` e campi ignorati;
 4. verifica che tutti gli altri file dell'archivio restino byte-identici.
 
+
+### 5. Accenti nei menu (bug del remaster)
+
+Nelle schermate con testo **maiuscolo** (Impostazioni, Conferme) il remaster
+disegna i caratteri in modalità ANSI: una `À` UTF-8 (`C3 80`) viene mostrata
+come `Ã¿`. Il difetto c'è anche nei file italiani **ufficiali**, quindi non
+dipende dalla patch: `QUALITÀ GRAFICA` → `QUALITÃ¿ GRAFICA`.
+
+Riscrivere il file con dimensioni diverse non è un'opzione: il motore scarta il
+`.landb` e il menu resta **vuoto** (verificato: cp1252, ASCII, `some_value`
+diverso). L'unica modifica accettata è a **parità di byte**:
+
+```
+"À"  C3 80  ->  "A'"  41 27      (2 byte -> 2 byte)
+"…"  E2 80 A6 -> "..." 2E 2E 2E  (3 byte -> 3 byte)
+```
+
+Sostituendo solo le sequenze accentate dentro `ui_menu_italian.landb`
+(37 punti, 74 byte su 129.674) dimensione, offset, `some_value` e struttura
+restano identici all'originale: il menu si carica e le scritte diventano
+leggibili (`QUALITA' GRAFICA`, `SI'`, `APPLICA`).
+
+L'installer fa esattamente questo, e solo per `ui_menu`: dialoghi, sottotitoli
+e schede narrative restano in UTF-8 con gli accenti veri, perché in quelle
+schermate il rendering è corretto.
+
 Dettagli completi: [`docs/FORMAT.md`](docs/FORMAT.md).
 
 ---

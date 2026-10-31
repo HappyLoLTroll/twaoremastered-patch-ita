@@ -27,7 +27,7 @@ import zlib
 
 APP_NAME = "The Wolf Among Us Remastered - Italiano"
 APP_AUTHOR = "installer by HappyLoLTroll"
-VERSION = "1.2"
+VERSION = "1.1"
 PATCH_URL = "https://1drv.ms/u/s!ApMUGr0cuN39gcU1t4iqnsfx5KTodQ?e=y9QOEr"
 BKP_DIR_NAME = "old_patch_ita"
 
@@ -369,6 +369,38 @@ def merge_texts(base_bytes, fonti):
 
 
 
+# --- accenti nei menu: il motore del remaster rende il maiuscolo in ANSI -----
+# Le stringhe UTF-8 accentate ("À") vengono mostrate come "Ã¿". L'unica
+# soluzione che il motore accetta e' sostituirle a parita' di byte: ogni
+# sequenza UTF-8 viene rimpiazzata da ASCII della stessa lunghezza, cosi'
+# dimensione del file, offset e some_value restano identici all'originale.
+ASCII_SOST = {
+    b"\xc3\xa0": b"a'", b"\xc3\xa8": b"e'", b"\xc3\xa9": b"e'",
+    b"\xc3\xac": b"i'", b"\xc3\xb2": b"o'", b"\xc3\xb9": b"u'",
+    b"\xc3\x80": b"A'", b"\xc3\x88": b"E'", b"\xc3\x89": b"E'",
+    b"\xc3\x8c": b"I'", b"\xc3\x92": b"O'", b"\xc3\x99": b"U'",
+    b"\xc3\xa7": b"c ", b"\xc3\x87": b"C ",
+    b"\xc3\xbc": b"u ", b"\xc3\xb6": b"o ", b"\xc3\xa4": b"a ",
+    b"\xc3\xaf": b"i ", b"\xc3\xab": b"e ",
+    b"\xe2\x80\xa6": b"...", b"\xe2\x80\x99": b"'  ", b"\xe2\x80\x9c": b'"  ',
+    b"\xe2\x80\x9d": b'"  ', b"\xe2\x80\x93": b"-  ", b"\xe2\x80\x94": b"-  ",
+    b"\xc2\xab": b'" ', b"\xc2\xbb": b' "', b"\xc2\xa0": b"  ",
+}
+FILE_ACCENTI = ("ui_menu_english.landb",)
+
+
+def fix_accenti(nome, dati):
+    """Sostituzioni a lunghezza identica per i file con testo maiuscolo."""
+    if nome not in FILE_ACCENTI:
+        return dati, 0
+    n = 0
+    for vecchio, nuovo in ASCII_SOST.items():
+        if vecchio in dati:
+            n += dati.count(vecchio)
+            dati = dati.replace(vecchio, nuovo)
+    return dati, n
+
+
 def merge_maps(base_bytes, fonti):
     """fonti: [(nome, {crc: testo})] in ordine di priorita'."""
     lb = Landb.read(base_bytes)
@@ -528,7 +560,14 @@ def install(game, mode, patch_dir, log, progress=None):
     log("[1/2] Installazione menu, dialoghi e sottotitoli...")
     scritti = 0
     for i, (target, (base, trans)) in enumerate(sorted(da_scrivere.items()), 1):
-        merged, stat, restano = merge_texts(base, [("remaster", trans)])
+        if target in FILE_ACCENTI:
+            # per i menu si parte dal file italiano ufficiale: il merge su base
+            # inglese cambierebbe some_value/flag e il motore non mostra i testi
+            merged = trans
+            stat, restano = [("remaster", 0)], 0
+        else:
+            merged, stat, restano = merge_texts(base, [("remaster", trans)])
+        merged, acc = fix_accenti(target, merged)
         dest = os.path.join(A, target)
         if os.path.exists(dest):
             b, why = backup_file(dest, bkp, os.path.join("Archives", target))
@@ -616,8 +655,13 @@ def install(game, mode, patch_dir, log, progress=None):
             if not da_patch_extra(target):
                 continue
             rem = {e.crc: e.speech for e in Landb.read(trans).entries}
-            merged, stat, restano = merge_maps(base, [("patch vecchia", pmaps.get(target, {})),
-                                                      ("remaster", rem)])
+            if target in FILE_ACCENTI:
+                merged = trans
+                stat, restano = [("remaster", 0)], 0
+            else:
+                merged, stat, restano = merge_maps(base, [("patch vecchia", pmaps.get(target, {})),
+                                                          ("remaster", rem)])
+            merged, acc = fix_accenti(target, merged)
             dest = os.path.join(A, target)
             if os.path.exists(dest):
                 b, why = backup_file(dest, bkp, os.path.join("Archives", target))
