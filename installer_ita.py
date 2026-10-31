@@ -27,7 +27,7 @@ import zlib
 
 APP_NAME = "The Wolf Among Us Remastered - Italiano"
 APP_AUTHOR = "installer by HappyLoLTroll"
-VERSION = "1.1"
+VERSION = "1.2"
 PATCH_URL = "https://1drv.ms/u/s!ApMUGr0cuN39gcU1t4iqnsfx5KTodQ?e=y9QOEr"
 BKP_DIR_NAME = "old_patch_ita"
 
@@ -368,6 +368,59 @@ def merge_texts(base_bytes, fonti):
     return lb.write(), stat, sum(1 for e in lb.entries if e.crc not in presi)
 
 
+
+def merge_maps(base_bytes, fonti):
+    """fonti: [(nome, {crc: testo})] in ordine di priorita'."""
+    lb = Landb.read(base_bytes)
+    presi = set()
+    stat = []
+    for nome, mappa in fonti:
+        n = 0
+        for e in lb.entries:
+            if e.crc in presi:
+                continue
+            t = (mappa.get(e.crc) or "").strip()
+            if not t or t.lower() in PLACEHOLDERS:
+                continue
+            if t != e.speech:
+                e.speech = t
+                n += 1
+            presi.add(e.crc)
+        stat.append((nome, n))
+    return lb.write(), stat, sum(1 for e in lb.entries if e.crc not in presi)
+
+
+def testi_dalla_patch(pack):
+    """nome landb -> {crc: testo italiano} leggendo la patch vecchia."""
+    out = {}
+    for nome in sorted(os.listdir(pack)):
+        if not nome.lower().endswith(".ttarch2"):
+            continue
+        try:
+            a = Archive(os.path.join(pack, nome))
+            files = {f[0] for f in a.parse()}
+        except Exception:
+            continue
+        try:
+            for f in files:
+                if not f.endswith("_english.landb"):
+                    continue
+                try:
+                    m = {e.crc: e.speech for e in Landb.read(a.read_file(f)).entries}
+                except Exception:
+                    continue
+                if f not in out or len(m) > len(out[f]):
+                    out[f] = m
+        finally:
+            a.close()
+    return out
+
+
+def da_patch_extra(nome):
+    return (nome.startswith("previouslyon_") or nome.startswith("nexttimeon_")
+            or nome in ("ui_text_english.landb", "ui_menu_english.landb"))
+
+
 # ------------------------------------------------------------------- piano
 def valid_game(path):
     if not path or not os.path.isdir(path):
@@ -554,6 +607,34 @@ def install(game, mode, patch_dir, log, progress=None):
                 (ep, "; ".join(dettagli), dimensione / 1048576.0))
             if ar not in manifest["archivi"]:
                 manifest["archivi"].append(ar)
+
+        # ---- fase 2b: riassunti (previouslyon/nexttimeon) e UI dalla patch
+        log("[2b] Riassunti e interfaccia dalla patch vecchia...")
+        pmaps = testi_dalla_patch(pack)
+        scritti2 = 0
+        for target, (base, trans) in sorted(coppie.items()):
+            if not da_patch_extra(target):
+                continue
+            rem = {e.crc: e.speech for e in Landb.read(trans).entries}
+            merged, stat, restano = merge_maps(base, [("patch vecchia", pmaps.get(target, {})),
+                                                      ("remaster", rem)])
+            dest = os.path.join(A, target)
+            if os.path.exists(dest):
+                b, why = backup_file(dest, bkp, os.path.join("Archives", target))
+                if b:
+                    log("      backup %s (%s)" % (target, why))
+            old = open(dest, "rb").read() if os.path.exists(dest) else None
+            if old is None or md5(old) != md5(merged):
+                with open(dest, "wb") as fh:
+                    fh.write(merged)
+                scritti2 += 1
+            if target not in manifest["file_sciolti"]:
+                manifest["file_sciolti"].append(target)
+            log("      %-34s ITA %3d | EN %2d | %s" %
+                (target, len(Landb.read(merged).entries) - restano, restano,
+                 ", ".join("%s %d" % x for x in stat)))
+        log("      %d file aggiornati" % scritti2)
+        log("")
 
     with open(manifest_path, "w", encoding="utf-8") as fh:
         json.dump(manifest, fh, indent=2, ensure_ascii=False)

@@ -26,7 +26,7 @@ Due modalità, scelte nell'installer:
 | modalità | cosa ottieni | richiede |
 |---|---|---|
 | **Solo testi e sottotitoli** | menu, impostazioni, obiettivi, fablespedia, dialoghi e sottotitoli in italiano | solo il gioco |
-| **Testi + testo dei capitoli** | come sopra, più schede narrative (l'inizio di ogni episodio) e crediti | la patch italiana della **versione vecchia** |
+| **Testi + testo dei capitoli** | come sopra, più schede narrative (l'inizio di ogni episodio), **riassunti "Previously on / Next time on"** e **etichette di menu/UI** | la patch italiana della **versione vecchia** |
 
 La patch vecchia serve solo per quei due file e si scarica qui:
 <https://1drv.ms/u/s!ApMUGr0cuN39gcU1t4iqnsfx5KTodQ?e=y9QOEr>
