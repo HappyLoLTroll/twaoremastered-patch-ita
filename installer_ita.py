@@ -594,58 +594,11 @@ def install(game, mode, patch_dir, log, progress=None):
             raise RuntimeError("nella cartella indicata non trovo la patch vecchia "
                                "(servono i file Fables_pc_Fables10N_data.ttarch2)")
         log("[2/2] Installazione testo dei capitoli (patch vecchia)...")
-        arch_bkp = os.path.join(bkp, "Archives")
-        for ep, ar in enumerate(EPISODI, 1):
-            cur = os.path.join(A, ar)
-            if not os.path.exists(cur):
-                log("      %s assente, salto" % ar)
-                continue
-            bak_rel = os.path.join("Archives", ar)
-            bak_abs = os.path.join(bkp, bak_rel)
-            os.makedirs(arch_bkp, exist_ok=True)
-            if not os.path.exists(bak_abs):
-                shutil.copy2(cur, bak_abs)
-                log("      backup %s" % ar)
-            origine = bak_abs          # base pulita, anche se gia' patchato
-            patch_ep = os.path.join(pack, EPISODI_PATCH[ep - 1])
-            if not os.path.exists(patch_ep):
-                log("      patch episodio %d non trovata, salto" % ep)
-                continue
-            a = Archive(origine)
-            p = Archive(patch_ep)
-            try:
-                a.parse()
-                p.parse()
-                repl = {}
-                dettagli = []
-                for nome in DUPLICATI:
-                    if nome not in [f[0] for f in a.files]:
-                        continue
-                    base = a.read_file(nome)
-                    fonti = []
-                    try:
-                        if nome in [f[0] for f in p.files]:
-                            fonti.append(("patch vecchia", p.read_file(nome)))
-                    except Exception:
-                        pass
-                    it = nome[:-len(ENGL)] + ITAL
-                    if it in [f[0] for f in a.files]:
-                        fonti.append(("remaster", a.read_file(it)))
-                    if not fonti:
-                        continue
-                    merged, stat, restano = merge_texts(base, fonti)
-                    repl[nome] = merged
-                    dettagli.append("%s (%s)" % (nome, ", ".join("%s %d" % s for s in stat)))
-                if not repl:
-                    continue
-                dimensione = rebuild_archive(a, repl, cur)
-            finally:
-                a.close()
-                p.close()
-            log("      episodio %d: %s | %.1f MB" %
-                (ep, "; ".join(dettagli), dimensione / 1048576.0))
-            if ar not in manifest["archivi"]:
-                manifest["archivi"].append(ar)
+        # NOTA: la riscrittura degli archivi di gioco e' stata rimossa.
+        # Sostituire ui_episode/ui_credits dentro gli archivi rompe il motore
+        # (testa dei modelli e cursore non vengono piu' caricati) e un file
+        # sciolto non puo' farlo perche' il nome esiste in 5 episodi.
+        log("      ui_episode/ui_credits restano in inglese (limite del motore).")
 
         # ---- fase 2b: riassunti (previouslyon/nexttimeon) e UI dalla patch
         log("[2b] Riassunti e interfaccia dalla patch vecchia...")
@@ -973,11 +926,11 @@ def run_gui():
             "   italiani e li scrive in Archives\\ come file sciolti <nome>_english.landb.\n"
             "   Il motore carica i file sciolti prima degli archivi, quindi menu, dialoghi e\n"
             "   sottotitoli diventano italiani. Gli archivi non vengono modificati.\n\n"
-            "2) CAPITOLI: le schede narrative (ui_episode, ui_credits) esistono in 5 versioni,\n"
-            "   una per episodio, con lo stesso nome: un file sciolto coprirebbe tutti gli\n"
-            "   episodi. Per questo vengono presi dalla patch italiana vecchia e inseriti\n"
-            "   dentro l'archivio del proprio episodio, riscritto nello stesso formato\n"
-            "   (ZCTT, blocchi deflate 64 KB).\n\n"
+            "2) CAPITOLI: dalla patch vecchia arrivano i riassunti 'Previously on / Next time on'\n"
+            "   e le etichette di menu/UI (nomi unici, quindi basta il file sciolto).\n"
+            "   Le schede narrative ui_episode/ui_credits restano in inglese: hanno lo stesso\n"
+            "   nome in tutti e 5 gli episodi e riscrivere l'archivio fa perdere al motore\n"
+            "   modelli e cursore.\n\n"
             "Il merge e' per chiave (crc64): dove la traduzione manca resta l'inglese.\n\n"
             "BACKUP: prima di ogni modifica i file vengono copiati in old_patch_ita\\\n"
             "(archivi originali inclusi). 'Ripristina' rimette tutto a posto.\n\n"

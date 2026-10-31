@@ -26,7 +26,7 @@ Due modalità, scelte nell'installer:
 | modalità | cosa ottieni | richiede |
 |---|---|---|
 | **Solo testi e sottotitoli** | menu, impostazioni, obiettivi, fablespedia, dialoghi e sottotitoli in italiano | solo il gioco |
-| **Testi + testo dei capitoli** | come sopra, più schede narrative (l'inizio di ogni episodio), **riassunti "Previously on / Next time on"** e **etichette di menu/UI** | la patch italiana della **versione vecchia** |
+| **Testi + extra** | come sopra, più **riassunti "Previously on / Next time on"** e **etichette di menu/UI** | la patch italiana della **versione vecchia** |
 
 La patch vecchia serve solo per quei due file e si scarica qui:
 <https://1drv.ms/u/s!ApMUGr0cuN39gcU1t4iqnsfx5KTodQ?e=y9QOEr>
@@ -184,6 +184,28 @@ leggibili (`QUALITA' GRAFICA`, `SI'`, `APPLICA`).
 L'installer fa esattamente questo, e solo per `ui_menu`: dialoghi, sottotitoli
 e schede narrative restano in UTF-8 con gli accenti veri, perché in quelle
 schermate il rendering è corretto.
+
+
+### 6. Perché le schede narrative restano in inglese
+
+`ui_episode_english.landb` e `ui_credits_english.landb` esistono in **5 versioni**,
+una per episodio, con lo stesso nome. Due strade provate e scartate:
+
+1. **File sciolto in `Archives\`** — ha un nome solo: coprirebbe tutti gli
+   episodi con la versione sbagliata → testo sbagliato e, nella prima versione
+   della patch, `Hello` al posto della scheda.
+2. **Riscrittura dell'archivio dell'episodio** (ZCTT, con i due testi
+   sostituiti e verifica che tutti gli altri file restino byte-identici) —
+   funziona per il testo, ma il motore poi **non carica più alcune risorse**:
+   sparivano il cursore e la testa dei modelli. Ripristinando gli archivi
+   originali tutto torna, quindi il problema è la riscrittura del contenitore,
+   non il testo.
+3. **Archivio aggiuntivo + set ad alta priorità** (`_resdesc_50_*.lua` con
+   `priority` 1 e 9000, `bootable`) — il motore ignora la sovrapposizione tra
+   set per i nomi già presenti.
+
+Quindi quei due file restano in inglese. Riassunti e UI funzionano perché i
+loro nomi sono unici: basta il file sciolto.
 
 Dettagli completi: [`docs/FORMAT.md`](docs/FORMAT.md).
 
